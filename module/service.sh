@@ -1,15 +1,21 @@
 #!/bin/sh
 
 MODDIR=${0%/*}
+KPNDIR="/data/adb/kp-next"
 PATH="$MODDIR/bin:$PATH"
-CONFIG="/data/adb/kp-next/package_config"
-key="$(cat /data/adb/kp-next/key | base64 -d)"
+CONFIG="$KPNDIR/package_config"
+key="$(cat $KPNDIR/key | base64 -d)"
 
 if [ -z "$key" ] || [ -z "$(kpatch $key hello)" ]; then
     exit 0
 fi
 
 [ -f "$CONFIG" ] || exit 0
+
+for kpm in "$KPNDIR/kpm/*.kpm"; do
+    [ -s "$kpm" ] || continue
+    kpatch "$key" kpm load "$kpm"
+done
 
 until [ "$(getprop sys.boot_completed)" = "1" ]; do
     sleep 1
