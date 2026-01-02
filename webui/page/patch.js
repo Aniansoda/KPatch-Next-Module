@@ -51,7 +51,6 @@ async function getInstalledVersion() {
 function patch(type) {
     const superkey = document.querySelector('#superkey md-outlined-text-field').value;
     const terminal = document.querySelector('#patch-terminal');
-    const script = type === "patch" ? "boot_patch.sh" : "boot_unpatch.sh";
 
     exec(`
         mkdir -p ${modDir}/tmp
@@ -65,7 +64,13 @@ function patch(type) {
             terminal.textContent = 'Error: Cannot find boot image!';
             return;
         }
-        const process = spawn(`sh`, [`${modDir}/${script}`, superkey, bootImage, 'true'], { cwd: `${modDir}/tmp` });
+        let args = [];
+        if (type === "patch") {
+            args.push(`${modDir}/boot_patch.sh`, superkey, bootImage, 'true');
+        } else {
+            args.push(`${modDir}/boot_unpatch.sh`, bootImage);
+        }
+        const process = spawn(`sh`, args, { cwd: `${modDir}/tmp` });
         const pageContent = terminal.closest('.page-content');
         process.stdout.on('data', (data) => {
             terminal.innerHTML += `<div>${data}</div>`;
