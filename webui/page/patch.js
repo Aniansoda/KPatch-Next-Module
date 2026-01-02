@@ -82,7 +82,9 @@ function patch(type) {
         });
         process.on('exit', (code) => {
             exec(`rm -rf ${modDir}/tmp`);
-            document.getElementById('reboot-fab').classList.remove('hide');
+            if (code === 0) {
+                document.getElementById('reboot-fab').classList.remove('hide');
+            }
         });
     });
 }

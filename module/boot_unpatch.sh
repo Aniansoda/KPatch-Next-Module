@@ -56,7 +56,7 @@ if [ ! $(kptools -i kernel -l | grep patched=false) ]; then
 
 else
   echo "- no need unpatch"
-  exit 0
+  exit 1
 fi
 
 if [ -f "new-boot.img" ]; then
