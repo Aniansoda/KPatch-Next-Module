@@ -11,6 +11,36 @@ body {
     box-sizing: border-box;
 }
 
+.splash {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--md-sys-color-surface);
+    z-index: 99;
+    opacity: 1;
+    transition: opacity 0.6s ease;
+
+    svg {
+        width: min(50vw, 360px);
+        height: auto;
+        fill: var(--md-sys-color-on-surface);
+        opacity: 0;
+        transition: opacity 0.1s ease;
+    }
+}
+
+.splash.show svg {
+    opacity: 1;
+}
+
+.splash.exit {
+    opacity: 0;
+    pointer-events: none;        
+}
+
 .root_layout {
     width: 100%;
     max-width: 768px;
@@ -178,18 +208,6 @@ body {
     color: var(--md-sys-color-on-primary);
     position: relative;
     overflow: hidden;
-
-    opacity: 1;
-    max-height: 1000px;
-    transition: all 0.2s ease;
-}
-
-.home-card.unresolved {
-    opacity: 0;
-    max-height: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    margin-top: -16px;
 }
 
 .warning-card {
@@ -573,16 +591,9 @@ md-dialog .checkbox-item {
     user-select: none;
 }
 
-[unresolved] {
-    opacity: 0;
-    overflow: hidden;
-}
-
+.hidden,
+[unresolved],
 [hidden] {
-    display: none !important;
-}
-
-.hidden {
     display: none !important;
 }
 

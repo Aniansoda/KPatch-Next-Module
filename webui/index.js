@@ -18,15 +18,15 @@ async function updateStatus() {
     const installedOnly = document.querySelectorAll('.installed-only');
     if (version) {
         versionText.textContent = version;
-        notInstalled.classList.add('unresolved');
-        working.classList.remove('unresolved');
+        notInstalled.classList.add('hidden');
+        working.classList.remove('hidden');
         kpmModule.refreshKpmList();
         document.querySelector('#superkey md-outlined-text-field').value = superkey;
         installedOnly.forEach(el => el.removeAttribute('hidden'));
     } else {
         versionText.textContent = 'Not installed';
-        notInstalled.classList.remove('unresolved');
-        working.classList.add('unresolved');
+        notInstalled.classList.remove('hidden');
+        working.classList.add('hidden');
         installedOnly.forEach(el => el.setAttribute('hidden', ''));
         if (superkey) {
             updateSuperkey('');
@@ -86,6 +86,8 @@ async function reboot(reason = "") {
 
 document.addEventListener('DOMContentLoaded', async () => {
     document.querySelectorAll('[unresolved]').forEach(el => el.removeAttribute('unresolved'));
+    const splash = document.getElementById('splash');
+    if (splash) setTimeout(() => splash.classList.add('show'), 50);
 
     setupRoute();
 
@@ -172,6 +174,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     initInfo();
     excludeModule.initExcludePage();
     kpmModule.initKPMPage();
+
+    await Promise.all([updateStatus(), initInfo()]);
+
+    // splash screen
+    if (splash) {
+        setTimeout(() => splash.classList.add('exit'), 100);
+        setTimeout(() => splash.remove(), 700);
+    }
 });
 
 // Overwrite default dialog animation
