@@ -153,14 +153,22 @@ async function renderKpmList() {
 }
 
 async function uploadFile(file, targetPath, onProgress, signal) {
-    const CHUNK_SIZE = 96 * 1024; // 96KB chunks
-    let offset = 0;
+    const CHUNK_SIZE = 256 * 1024; // 256KB chunks
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    const CONCURRENCY = 8;
 
-    await exec(`mkdir -p "$(dirname "${targetPath}")" && : > "${targetPath}"`);
+    await exec(`mkdir -p "$(dirname "${targetPath}")"`);
 
-    while (offset < file.size) {
-        if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
-        const chunk = file.slice(offset, offset + CHUNK_SIZE);
+    let uploadedBytes = 0;
+    let nextChunkIdx = 0;
+
+    const processChunk = async (index) => {
+        if (signal?.aborted) return;
+
+        const start = index * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, file.size);
+        const chunk = file.slice(start, end);
+
         const base64 = await new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => resolve(reader.result.split(',')[1]);
@@ -168,21 +176,52 @@ async function uploadFile(file, targetPath, onProgress, signal) {
             reader.readAsDataURL(chunk);
         });
 
-        const result = await new Promise((resolve, reject) => {
-            const child = spawn(`echo '${base64}' | base64 -d >> "${targetPath}"`);
-            child.on('exit', (code) => {
-                if (code === 0) resolve({ errno: 0 });
-                else resolve({ errno: code, stderr: `Exit code ${code}` });
-            });
-            child.on('error', (err) => reject(err));
+        const partPath = `${targetPath}.part${index.toString().padStart(8, '0')}`;
+        const result = await new Promise((resolve) => {
+            const child = spawn(`echo '${base64}' | base64 -d > "${partPath}"`);
+            child.on('exit', (code) => resolve({ errno: code }));
         });
 
         if (result.errno !== 0) {
-            throw new Error(result.stderr || 'Write error');
+            throw new Error(`Write error at chunk ${index}`);
         }
 
-        offset += CHUNK_SIZE;
-        if (onProgress) onProgress(Math.min(offset, file.size) / file.size);
+        uploadedBytes += (end - start);
+        if (onProgress) {
+            onProgress(uploadedBytes / file.size);
+        }
+    };
+
+    try {
+        const workers = [];
+        for (let i = 0; i < Math.min(CONCURRENCY, totalChunks); i++) {
+            workers.push((async () => {
+                while (nextChunkIdx < totalChunks && !signal?.aborted) {
+                    const index = nextChunkIdx++;
+                    await processChunk(index);
+                }
+            })());
+        }
+
+        await Promise.all(workers);
+
+        if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+
+        if (totalChunks === 0) {
+            await exec(`: > "${targetPath}"`);
+            return;
+        }
+
+        const combineResult = await new Promise((resolve) => {
+            const child = spawn(`cat "${targetPath}.part"* > "${targetPath}" && rm -f "${targetPath}.part"*`);
+            child.on('exit', (code) => resolve({ errno: code }));
+        });
+        if (combineResult.errno !== 0) {
+            throw new Error('Merge error');
+        }
+    } catch (err) {
+        await exec(`rm -f "${targetPath}.part"*`);
+        throw err;
     }
 }
 
