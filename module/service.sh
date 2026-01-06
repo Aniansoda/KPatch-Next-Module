@@ -6,7 +6,7 @@ PATH="$MODDIR/bin:$PATH"
 CONFIG="$KPNDIR/package_config"
 key="$(cat $KPNDIR/key | base64 -d)"
 
-sh "$MODDIR/status.sh" "$key"
+nohup sh "$MODDIR/status.sh" "$key" &
 
 if [ -z "$key" ] || [ -z "$(kpatch $key hello)" ]; then
     touch "$MODDIR/unresolved"
