@@ -309,17 +309,16 @@ async function uploadAndLoadModule() {
                 };
 
                 dialog.querySelector('.confirm').onclick = async () => {
-                    if (!checkbox.checked) {
-                        await exec(`
-                            mkdir -p ${persistDir}/kpm
-                            cp -f "${modDir}/tmp/${file.name}" "${persistDir}/kpm/${info.name}.kpm"
-                        `);
-                    }
-
                     const success = await loadModule(`${modDir}/tmp/${file.name}`);
                     if (success) {
                         toast(`Successfully loaded ${info.name}`);
                         refreshKpmList();
+                        if (!checkbox.checked) { // Save module to load on boot automatically
+                             exec(`
+                                mkdir -p ${persistDir}/kpm
+                                cp -f "${modDir}/tmp/${file.name}" "${persistDir}/kpm/${info.name}.kpm"
+                            `);
+                        }
                     } else {
                         toast(`Failed to load module ${info.name}`);
                     }
