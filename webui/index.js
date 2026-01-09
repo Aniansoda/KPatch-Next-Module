@@ -131,7 +131,10 @@ async function updateRehookStatus() {
 }
 
 function setRehookMode(mode) {
-    exec(`kpatch ${escapeShell(superkey)} rehook ${mode}`, { env: { PATH: `${modDir}/bin` } }).then((result) => {
+    exec(`
+        kpatch ${escapeShell(superkey)} rehook ${mode} && echo ${mode} > ${persistDir}/rehook`,
+        { env: { PATH: `${modDir}/bin:$PATH` } }
+    ).then((result) => {
         if (result.errno !== 0) {
             toast(getString('msg_error', result.stderr));
             return;
