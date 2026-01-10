@@ -117,12 +117,10 @@ async function parseBootimg() {
         kimgInfo.banner = ini.kernel.banner;
         kimgInfo.patched = ini.kernel.patched === 'true';
 
-        // Kernel info card
         document.getElementById('kernel-info').textContent = kimgInfo.banner;
         document.getElementById('kernel').classList.remove('animate-hidden');
 
         if (kimgInfo.patched && ini.kpimg) {
-            // Parse extras
             existedExtras = [];
             let kpmNum = parseInt(ini.kernel.extra_num);
             if (isNaN(kpmNum) && ini.extras) {
@@ -159,13 +157,11 @@ async function extractAndParseBootimg() {
         return;
     }
 
-    // Prepare work directory
     const prepare = spawn(`mkdir -p ${modDir}/tmp && rm -rf ${modDir}/tmp/* && cp ${modDir}/bin/kpimg ${modDir}/tmp/`);
     await new Promise((resolve) => {
         prepare.on('exit', () => resolve());
     });
 
-    // get slot and device
     const result = spawn('busybox', ['sh', `${modDir}/boot_extract.sh`], {
         env: { PATH: `${modDir}/bin:/data/adb/ksu/bin:/data/adb/magisk:$PATH`, ASH_STANDALONE: '1' }
     });
@@ -191,7 +187,6 @@ async function extractAndParseBootimg() {
         return;
     }
 
-    // Bootimg info card
     document.getElementById('bootimg-slot').textContent = bootSlot ? getString('info_slot', bootSlot) : '';
     document.getElementById('bootimg-device').textContent = bootDev ? getString('info_device', bootDev) : getString('info_device_unknown');
     document.getElementById('bootimg').classList.remove('animate-hidden');
@@ -207,12 +202,12 @@ function renderKpmList() {
 
     const createCard = (item, index, isNew) => {
         const card = document.createElement('div');
-        card.className = 'card module-card';
+        card.className = 'card module-card liquid-glass-card liquid-glass';
         card.innerHTML = `
             <div class="module-card-header">
                 <div class="flex-header">
                     <div class="module-card-title">${item.name}</div>
-                    ${isNew ? '' : '<div class="tag">' + getString('info_embedded') + '</div>'}
+                    ${isNew ? '<div class="tag liquid">' + getString('info_new') + '</div>' : '<div class="tag liquid">' + getString('info_embedded') + '</div>'}
                 </div>
                 <div class="module-card-subtitle">${item.version}, ${getString('info_author', item.author || getString('msg_unknown'))}</div>
                 <div class="module-card-subtitle">${getString('info_args', item.args ? item.args : '(null)')}</div>
@@ -222,14 +217,22 @@ function renderKpmList() {
             </div>
             <md-divider></md-divider>
             <div class="module-card-actions">
-                <md-filled-tonal-icon-button class="control">
+                <md-filled-tonal-icon-button class="control liquid">
                     <md-icon><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z" /></svg></md-icon>
                 </md-filled-tonal-icon-button>
-                <md-filled-tonal-icon-button class="unload">
+                <md-filled-tonal-icon-button class="unload liquid">
                     <md-icon><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg></md-icon>
                 </md-filled-tonal-icon-button>
             </div>
         `;
+
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            card.style.setProperty('--mouse-x', `${x}%`);
+            card.style.setProperty('--mouse-y', `${y}%`);
+        });
 
         card.querySelector('.control').onclick = () => openOptionDialog(item);
         card.querySelector('.unload').onclick = () => {
@@ -258,6 +261,8 @@ function openOptionDialog(item) {
     const eventSelect = document.getElementById('kpm-event-select');
     const argsInput = document.getElementById('kpm-args-input');
 
+    dialog.classList.add('liquid-glass');
+    
     eventSelect.value = item.event || 'pre-kernel-init';
     argsInput.value = item.args || '';
 
@@ -285,7 +290,6 @@ async function embedKPM() {
         embedBtn.disabled = true;
         startBtn.disabled = true;
 
-        // Generate random filename
         const randName = Math.random().toString(36).substring(7) + '.kpm';
         const tmpPath = `${modDir}/tmp/${randName}`;
 
@@ -314,7 +318,7 @@ async function embedKPM() {
             newExtras.push({
                 type: 'KPM',
                 name: ini.kpm.name,
-                event: 'pre-kernel-init', // default
+                event: 'pre-kernel-init',
                 args: '',
                 version: ini.kpm.version,
                 license: ini.kpm.license,
@@ -333,6 +337,9 @@ async function embedKPM() {
 function patch(type) {
     const terminal = document.querySelector('#patch-terminal');
     const pageContent = terminal.closest('.page-content');
+    
+    terminal.classList.add('liquid-glass');
+    
     const onOutput = (data) => {
         terminal.innerHTML += `<div>${data}</div>`;
         pageContent.scrollTo({ top: pageContent.scrollHeight, behavior: 'smooth' });
@@ -351,7 +358,6 @@ function patch(type) {
             'true'
         );
 
-        // New kpm
         newExtras.forEach(extra => {
             args.push('-M', `${modDir}/tmp/${extra.fileName}`);
             if (extra.args) args.push('-A', escapeShell(extra.args));
@@ -359,7 +365,6 @@ function patch(type) {
             args.push('-T', 'kpm');
         });
 
-        // Embeded kpm
         existedExtras.forEach(extra => {
             args.push('-E', extra.name);
             if (extra.args) args.push('-A', escapeShell(extra.args));
@@ -367,7 +372,6 @@ function patch(type) {
             args.push('-T', 'kpm');
         });
     } else {
-        // Unpatch logic
         args.push(`${modDir}/boot_unpatch.sh`, bootDev);
     }
 
@@ -386,6 +390,7 @@ function patch(type) {
     process.stderr.on('data', onOutput);
     process.on('exit', (code) => {
         if (code === 0) {
+            document.getElementById('reboot-fab').classList.add('liquid');
             document.getElementById('reboot-fab').classList.remove('hide');
             bootSlot = '';
             bootDev = '';
@@ -396,4 +401,53 @@ function patch(type) {
     });
 }
 
-export { getKpimgInfo, extractAndParseBootimg, getInstalledVersion, patch, embedKPM }
+export function initEmbedPage() {
+    const embedBtn = document.getElementById('embed');
+    const startBtn = document.getElementById('start');
+    const patchBtn = document.getElementById('patch');
+    const unpatchBtn = document.getElementById('unpatch');
+    const kpmEventSelect = document.getElementById('kpm-event-select');
+    const kpmOptionDialog = document.getElementById('kpm-option-dialog');
+    
+    embedBtn.classList.add('liquid');
+    startBtn.classList.add('liquid');
+    patchBtn.classList.add('liquid');
+    unpatchBtn.classList.add('liquid');
+    
+    if (kpmOptionDialog) {
+        kpmOptionDialog.classList.add('liquid-glass');
+        
+        const dialogButtons = kpmOptionDialog.querySelectorAll('md-filled-button, md-filled-tonal-button, md-outlined-button');
+        dialogButtons.forEach(button => {
+            if (!button.classList.contains('cancel') && !button.classList.contains('confirm')) {
+                button.classList.add('liquid');
+            }
+        });
+        
+        const dialogCheckboxes = kpmOptionDialog.querySelectorAll('md-checkbox');
+        dialogCheckboxes.forEach(checkbox => {
+            checkbox.classList.add('liquid-glass');
+        });
+    }
+    
+    const infoCards = document.querySelectorAll('#bootimg, #kpimg, #kernel');
+    infoCards.forEach(card => {
+        if (card) {
+            card.classList.add('info-card', 'liquid-glass');
+        }
+    });
+    
+    embedBtn.onclick = () => embedKPM();
+    startBtn.onclick = () => patch('patch');
+    patchBtn.onclick = () => patch('patch');
+    unpatchBtn.onclick = () => patch('unpatch');
+    
+    if (kpmEventSelect) {
+        const selectWrapper = kpmEventSelect.closest('.select-wrapper');
+        if (selectWrapper) {
+            selectWrapper.classList.add('liquid-glass');
+        }
+    }
+}
+
+export { getKpimgInfo, extractAndParseBootimg, getInstalledVersion, patch, embedKPM, initEmbedPage }
