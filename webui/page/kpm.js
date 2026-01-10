@@ -392,7 +392,7 @@ async function uploadAndLoadModule() {
     });
 }
 
-export function initKPMPage() {
+function initKPMPage() {
     const searchBtn = document.getElementById('kpm-search-btn');
     const searchBar = document.getElementById('kpm-search-bar');
     const closeBtn = document.getElementById('close-kpm-search-btn');
@@ -473,4 +473,4 @@ export function initKPMPage() {
     }
 }
 
-export { loadModule, refreshKpmList, handleFileUpload, uploadFile }
+export { loadModule, refreshKpmList, handleFileUpload, uploadFile, initKPMPage }
