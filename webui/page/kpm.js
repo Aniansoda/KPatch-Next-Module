@@ -134,6 +134,7 @@ async function renderKpmList() {
 
             item.querySelector('.control').onclick = () => {
                 const dialog = document.getElementById('control-dialog');
+                dialog.classList.add('liquid-glass');
                 const textField = dialog.querySelector('md-outlined-text-field');
                 dialog.querySelector('.cancel').onclick = () => dialog.close();
                 dialog.querySelector('.confirm').onclick = async () => {
@@ -145,8 +146,10 @@ async function renderKpmList() {
                 };
                 dialog.show();
             };
+            
             item.querySelector('.unload').onclick = async () => {
                 const dialog = document.getElementById('unload-dialog');
+                dialog.classList.add('liquid-glass');
                 dialog.querySelector('[slot=content]').innerHTML = `<div>${getString('msg_unload_module', module.name)}</div>`;
                 dialog.querySelector('.cancel').onclick = () => dialog.close();
                 dialog.querySelector('.confirm').onclick = async () => {
@@ -351,8 +354,10 @@ async function uploadAndLoadModule() {
             const info = await getKpmInfo(tmpPath);
             if (info && info.name) {
                 const dialog = document.getElementById('load-dialog');
+                dialog.classList.add('liquid-glass');
                 dialog.querySelector('#load-module-msg').textContent = getString('msg_module_loaded', info.name);
                 const checkbox = dialog.querySelector('md-checkbox');
+                checkbox.classList.add('liquid-glass');
                 checkbox.checked = false;
 
                 dialog.querySelector('.cancel').onclick = () => {
@@ -392,22 +397,27 @@ async function uploadAndLoadModule() {
     });
 }
 
-function initKPMPage() {
+export function initKPMPage() {
     const searchBtn = document.getElementById('kpm-search-btn');
     const searchBar = document.getElementById('kpm-search-bar');
     const closeBtn = document.getElementById('close-kpm-search-btn');
     const searchInput = document.getElementById('kpm-search-input');
     const menuBtn = document.getElementById('kpm-menu-btn');
     const menu = document.getElementById('kpm-menu');
+    const loadBtn = document.getElementById('load');
+    const refreshBtn = document.getElementById('refresh-kpm-list-menu');
 
     searchBar.classList.add('liquid-glass');
     menu.classList.add('liquid-glass');
-    
+    searchBtn.classList.add('liquid');
+    menuBtn.classList.add('liquid');
+    loadBtn.classList.add('liquid');
+
     const menuItems = menu.querySelectorAll('md-menu-item');
     menuItems.forEach(item => {
         item.classList.add('liquid-glass');
     });
-    
+
     const controlDialog = document.getElementById('control-dialog');
     const unloadDialog = document.getElementById('unload-dialog');
     const loadDialog = document.getElementById('load-dialog');
@@ -415,12 +425,10 @@ function initKPMPage() {
     [controlDialog, unloadDialog, loadDialog].forEach(dialog => {
         if (dialog) {
             dialog.classList.add('liquid-glass');
-            
             const checkboxes = dialog.querySelectorAll('md-checkbox');
             checkboxes.forEach(checkbox => {
                 checkbox.classList.add('liquid-glass');
             });
-            
             const buttons = dialog.querySelectorAll('md-filled-button, md-filled-tonal-button, md-outlined-button');
             buttons.forEach(button => {
                 if (!button.classList.contains('cancel') && !button.classList.contains('confirm')) {
@@ -429,9 +437,6 @@ function initKPMPage() {
             });
         }
     });
-
-    searchBtn.classList.add('liquid');
-    menuBtn.classList.add('liquid');
 
     searchBtn.onclick = () => {
         searchBar.classList.add('show');
@@ -455,22 +460,26 @@ function initKPMPage() {
 
     menuBtn.onclick = () => menu.show();
 
-    document.getElementById('refresh-kpm-list-menu').onclick = () => {
+    refreshBtn.onclick = () => {
         kpmItemMap.clear();
         refreshKpmList();
     };
 
-    const controlDialog2 = document.getElementById('control-dialog');
-    const controlTextField = controlDialog2.querySelector('md-outlined-text-field');
-    controlTextField.addEventListener('input', () => {
-        controlDialog2.querySelector('.confirm').disabled = !controlTextField.value;
-    });
-
-    const loadBtn = document.getElementById('load');
-    if (loadBtn) {
-        loadBtn.classList.add('liquid');
-        loadBtn.onclick = () => uploadAndLoadModule();
+    if (controlDialog) {
+        const controlTextField = controlDialog.querySelector('md-outlined-text-field');
+        if (controlTextField) {
+            controlTextField.addEventListener('input', () => {
+                const confirmBtn = controlDialog.querySelector('.confirm');
+                if (confirmBtn) {
+                    confirmBtn.disabled = !controlTextField.value;
+                }
+            });
+        }
     }
+
+    loadBtn.onclick = () => uploadAndLoadModule();
+
+    refreshKpmList();
 }
 
-export { loadModule, refreshKpmList, handleFileUpload, uploadFile, initKPMPage }
+export { loadModule, refreshKpmList, handleFileUpload, uploadFile }

@@ -258,11 +258,10 @@ function renderKpmList() {
 
 function openOptionDialog(item) {
     const dialog = document.getElementById('kpm-option-dialog');
+    dialog.classList.add('liquid-glass');
     const eventSelect = document.getElementById('kpm-event-select');
     const argsInput = document.getElementById('kpm-args-input');
 
-    dialog.classList.add('liquid-glass');
-    
     eventSelect.value = item.event || 'pre-kernel-init';
     argsInput.value = item.args || '';
 
@@ -279,6 +278,18 @@ function openOptionDialog(item) {
 
     const cancelBtn = dialog.querySelector('.cancel');
     cancelBtn.onclick = () => dialog.close();
+
+    const dialogButtons = dialog.querySelectorAll('md-filled-button, md-filled-tonal-button, md-outlined-button');
+    dialogButtons.forEach(button => {
+        if (!button.classList.contains('cancel') && !button.classList.contains('confirm')) {
+            button.classList.add('liquid');
+        }
+    });
+
+    const dialogCheckboxes = dialog.querySelectorAll('md-checkbox');
+    dialogCheckboxes.forEach(checkbox => {
+        checkbox.classList.add('liquid-glass');
+    });
 
     dialog.show();
 }
@@ -336,10 +347,8 @@ async function embedKPM() {
 
 function patch(type) {
     const terminal = document.querySelector('#patch-terminal');
-    const pageContent = terminal.closest('.page-content');
-    
     terminal.classList.add('liquid-glass');
-    
+    const pageContent = terminal.closest('.page-content');
     const onOutput = (data) => {
         terminal.innerHTML += `<div>${data}</div>`;
         pageContent.scrollTo({ top: pageContent.scrollHeight, behavior: 'smooth' });
@@ -390,8 +399,9 @@ function patch(type) {
     process.stderr.on('data', onOutput);
     process.on('exit', (code) => {
         if (code === 0) {
-            document.getElementById('reboot-fab').classList.add('liquid');
-            document.getElementById('reboot-fab').classList.remove('hide');
+            const rebootFab = document.getElementById('reboot-fab');
+            rebootFab.classList.add('liquid');
+            rebootFab.classList.remove('hide');
             bootSlot = '';
             bootDev = '';
             kimgInfo = { banner: '', patched: false };
@@ -401,7 +411,7 @@ function patch(type) {
     });
 }
 
-function initEmbedPage() {
+export function initPatchPage() {
     const embedBtn = document.getElementById('embed');
     const startBtn = document.getElementById('start');
     const patchBtn = document.getElementById('patch');
@@ -437,6 +447,11 @@ function initEmbedPage() {
         }
     });
     
+    const kpmListContainer = document.getElementById('kpm-embed-list');
+    if (kpmListContainer) {
+        kpmListContainer.classList.add('liquid-glass');
+    }
+    
     embedBtn.onclick = () => embedKPM();
     startBtn.onclick = () => patch('patch');
     patchBtn.onclick = () => patch('patch');
@@ -448,6 +463,16 @@ function initEmbedPage() {
             selectWrapper.classList.add('liquid-glass');
         }
     }
+    
+    const terminal = document.getElementById('patch-terminal');
+    if (terminal) {
+        terminal.classList.add('liquid-glass');
+    }
+    
+    const rebootFab = document.getElementById('reboot-fab');
+    if (rebootFab) {
+        rebootFab.classList.add('liquid');
+    }
 }
 
-export { getKpimgInfo, extractAndParseBootimg, getInstalledVersion, patch, embedKPM, initEmbedPage }
+export { getKpimgInfo, extractAndParseBootimg, getInstalledVersion, patch, embedKPM, initPatchPage }
