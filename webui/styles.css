@@ -312,10 +312,6 @@ body {
     justify-content: flex-end;
 }
 
-.module-card-actions md-filled-tonal-icon-button {
-    --md-filled-tonal-icon-button-container-width: 64px;
-}
-
 .app-item .tag-wrapper {
     display: flex;
     justify-content: flex-start;
@@ -784,6 +780,8 @@ md-filled-tonal-icon-button.liquid {
     position: relative;
     overflow: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 50% !important;
+    --md-filled-tonal-icon-button-container-shape: 9999px !important;
 }
 
 md-filled-tonal-icon-button.liquid::before {
@@ -1205,198 +1203,94 @@ md-checkbox.liquid-glass:hover {
     filter: drop-shadow(0 4px 8px rgba(var(--glass-primary-rgb), 0.3));
 }
 
-.app-list {
+/* 修复KPM按钮为圆形 */
+.module-card-actions {
+    padding-top: 8px;
     display: flex;
-    flex-direction: column;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.module-card-actions md-filled-tonal-icon-button.liquid {
+    --md-filled-tonal-icon-button-container-width: 48px !important;
+    --md-filled-tonal-icon-button-container-height: 48px !important;
+    --md-filled-tonal-icon-button-container-shape: 9999px !important;
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    border-radius: 50% !important;
+}
+
+.module-card-actions md-filled-tonal-icon-button.liquid md-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 24px;
+}
+
+/* 修复应用列表样式 */
+.app-list-container {
     width: 100%;
     max-width: 100%;
-    padding-bottom: 72px;
+    padding: 0 16px;
+    box-sizing: border-box;
 }
 
-.app-item {
-    display: flex;
-    align-items: center;
-    padding: 8px 16px;
-    gap: 16px;
+.app-item.liquid-glass {
+    background: linear-gradient(135deg, rgba(var(--md-sys-color-surface-container-rgb), 0.1) 0%, rgba(var(--md-sys-color-surface-container-high-rgb), 0.05) 100%);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    margin: 8px 0;
+    padding: 16px;
     position: relative;
-    user-select: none;
-}
-
-.icon-container {
-    position: relative;
-    padding: 12px 4px;
-    width: 40px;
-    height: 40px;
-    flex-shrink: 0;
-}
-
-.app-icon {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    position: relative;
-    z-index: 1;
-    transition: opacity 0.3s ease;
-}
-
-.loader {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, var(--md-sys-color-surface-container), var(--md-sys-color-surface-container-high), var(--md-sys-color-surface-container));
-    background-size: 200% 100%;
-    animation: shimmer 1.2s infinite linear;
-    border-radius: 6px;
-    z-index: 0;
-}
-
-@keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-}
-
-.app-info {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
     overflow: hidden;
+    transform: translateY(0);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.app-label {
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.app-item.liquid-glass:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
-.app-package {
-    font-size: 0.8em;
-    color: var(--md-sys-color-outline);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.app-switch {
-    flex-shrink: 0;
-}
-
-.empty-list {
-    height: 100%;
-    width: 100%;
-    padding-bottom: 72px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.empty-list.hidden {
-    display: none;
-}
-
-#kpm-page.liquid-transition {
-    animation: liquidPageIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-.module-card.liquid-glass-card {
-    margin: 12px 16px;
-    animation: moduleCardSlideIn 0.6s ease-out backwards;
-    animation-delay: calc(var(--item-index, 0) * 0.1s);
-}
-
-@keyframes moduleCardSlideIn {
-    from { 
-        opacity: 0; 
-        transform: translateY(20px) scale(0.95); 
-        filter: blur(5px);
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0) scale(1); 
-        filter: blur(0);
-    }
-}
-
-.module-card.liquid-glass-card:nth-child(1) { --item-index: 1; }
-.module-card.liquid-glass-card:nth-child(2) { --item-index: 2; }
-.module-card.liquid-glass-card:nth-child(3) { --item-index: 3; }
-.module-card.liquid-glass-card:nth-child(4) { --item-index: 4; }
-.module-card.liquid-glass-card:nth-child(5) { --item-index: 5; }
-
-.module-card.liquid-glass-card .module-card-title {
-    background: linear-gradient(135deg, var(--md-sys-color-primary), var(--md-sys-color-secondary));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-.module-card.liquid-glass-card .module-card-subtitle {
-    color: var(--md-sys-color-on-surface-variant);
-    font-size: 0.75em;
-    opacity: 0.8;
-}
-
-.module-card.liquid-glass-card .module-card-text {
-    color: var(--md-sys-color-outline);
-    font-size: 0.85em;
-    line-height: 1.5;
-}
-
-.module-card.liquid-glass-card md-divider {
-    --md-divider-color: rgba(255, 255, 255, 0.1);
-    margin: 12px 0;
-}
-
-#kpm-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    width: 100%;
-    padding: 12px 0;
-}
-
-#load.liquid {
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 12px 40px rgba(var(--glass-primary-rgb), 0.3), 
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    animation: floatButton 4s ease-in-out infinite;
-    position: fixed;
-    bottom: calc(80px + var(--bottom-inset) + 16px);
-    right: 16px;
-    z-index: 11;
-}
-
-@keyframes floatButton {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-8px) rotate(3deg); }
-}
-
-#kpm-menu-btn.liquid {
-    background: rgba(var(--glass-primary-rgb), 0.15) !important;
+.app-item.liquid-glass .icon-container {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(var(--glass-primary-rgb), 0.3);
+    padding: 8px;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-#kpm-search-btn.liquid {
-    background: rgba(var(--glass-primary-rgb), 0.15) !important;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(var(--glass-primary-rgb), 0.3);
+.app-item.liquid-glass:hover .icon-container {
+    transform: scale(1.1) rotate(3deg);
+    background: rgba(var(--glass-primary-rgb), 0.15);
+    border-color: rgba(var(--glass-primary-rgb), 0.3);
+    box-shadow: 0 6px 20px rgba(var(--glass-primary-rgb), 0.2);
 }
 
-@media (max-width: 768px) {
-    .module-card.liquid-glass-card {
-        margin: 8px 12px;
-        border-radius: 18px;
-    }
-    
-    #load.liquid {
-        bottom: calc(80px + var(--bottom-inset) + 12px);
-        right: 12px;
-    }
+.app-item.liquid-glass .app-icon {
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
+    transition: all 0.3s ease;
+}
+
+.app-item.liquid-glass:hover .app-icon {
+    filter: drop-shadow(0 4px 12px rgba(var(--glass-primary-rgb), 0.3));
+}
+
+.app-item.liquid-glass .app-switch.liquid {
+    --md-switch-selected-handle-color: var(--md-sys-color-primary);
+    --md-switch-selected-track-color: rgba(var(--glass-primary-rgb), 0.3);
+    --md-switch-unselected-handle-color: var(--md-sys-color-outline);
+    --md-switch-unselected-track-color: rgba(var(--md-sys-color-outline-rgb), 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app-item.liquid-glass .app-switch.liquid:hover {
+    transform: scale(1.05);
 }
