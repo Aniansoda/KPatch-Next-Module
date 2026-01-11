@@ -3,7 +3,6 @@
 MODDIR="/data/adb/modules/KPatch-Next"
 KPNDIR="/data/adb/kp-next"
 PATH="$MODDIR/bin:$PATH"
-key="$1"
 
 PROP_FILE="$MODDIR/module.prop"
 PROP_BAK="$PROP_FILE.bak"
@@ -35,17 +34,15 @@ fi
 
 active="状态: 运行中 😊"
 inactive="状态: 未运行 😕"
-info="信息: 密钥不正确，尚未进行设置，或者内核尚未修补 ❌"
+info="信息: 尚未进行设置，或者内核尚未修补 ❌"
 string="$inactive | $info"
-
-[ -z "$key" ] && key="$(cat $KPNDIR/key | base64 -d)"
 
 until [ "$(getprop sys.boot_completed)" = "1" ]; do
     sleep 1
 done
 
-if [ -n "$key" ] && kpatch "$key" hello >/dev/null 2>&1; then
-    KPM_COUNT="$(kpatch "$key" kpm num 2>/dev/null || echo 0)"
+if kpatch hello >/dev/null 2>&1; then
+    KPM_COUNT="$(kpatch kpm num 2>/dev/null || echo 0)"
     [ -z "$KPM_COUNT" ] && KPM_COUNT=0
     string="$active | KPM数量: $KPM_COUNT 💉"
 fi
