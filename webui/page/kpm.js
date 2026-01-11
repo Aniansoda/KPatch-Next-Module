@@ -103,7 +103,7 @@ async function renderKpmList() {
         let item = kpmItemMap.get(module.name);
         if (!item) {
             item = document.createElement('div');
-            item.className = 'card module-card liquid-glass-card liquid-glass';
+            item.className = 'card module-card';
             item.innerHTML = `
                 <div class="module-card-header">
                     <div class="module-card-title">${module.name}</div>
@@ -115,26 +115,17 @@ async function renderKpmList() {
                 </div>
                 <md-divider></md-divider>
                 <div class="module-card-actions">
-                    <md-filled-tonal-icon-button class="control liquid">
+                    <md-filled-tonal-icon-button class="control">
                         <md-icon><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z" /></svg></md-icon>
                     </md-filled-tonal-icon-button>
-                    <md-filled-tonal-icon-button class="unload liquid">
+                    <md-filled-tonal-icon-button class="unload">
                         <md-icon><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg></md-icon>
                     </md-filled-tonal-icon-button>
                 </div>
             `;
 
-            item.addEventListener('mousemove', (e) => {
-                const rect = item.getBoundingClientRect();
-                const x = ((e.clientX - rect.left) / rect.width) * 100;
-                const y = ((e.clientY - rect.top) / rect.height) * 100;
-                item.style.setProperty('--mouse-x', `${x}%`);
-                item.style.setProperty('--mouse-y', `${y}%`);
-            });
-
             item.querySelector('.control').onclick = () => {
                 const dialog = document.getElementById('control-dialog');
-                dialog.classList.add('liquid-glass');
                 const textField = dialog.querySelector('md-outlined-text-field');
                 dialog.querySelector('.cancel').onclick = () => dialog.close();
                 dialog.querySelector('.confirm').onclick = async () => {
@@ -149,7 +140,6 @@ async function renderKpmList() {
             
             item.querySelector('.unload').onclick = async () => {
                 const dialog = document.getElementById('unload-dialog');
-                dialog.classList.add('liquid-glass');
                 dialog.querySelector('[slot=content]').innerHTML = `<div>${getString('msg_unload_module', module.name)}</div>`;
                 dialog.querySelector('.cancel').onclick = () => dialog.close();
                 dialog.querySelector('.confirm').onclick = async () => {
@@ -188,10 +178,8 @@ function applyFilters() {
     if (visibleCount === 0) {
         emptyMsg.textContent = getString('msg_no_module_found');
         emptyMsg.classList.remove('hidden');
-        emptyMsg.classList.add('empty-list', 'liquid-glass');
     } else {
         emptyMsg.classList.add('hidden');
-        emptyMsg.classList.remove('empty-list', 'liquid-glass');
     }
 }
 
@@ -295,14 +283,14 @@ async function handleFileUpload(accept, containerId, onSelected) {
 
         const abortController = new AbortController();
         const loadingCard = document.createElement('div');
-        loadingCard.className = 'card module-card liquid-glass-card liquid-loading';
+        loadingCard.className = 'card module-card';
         loadingCard.innerHTML = `
             <div class="module-card-header flex-header">
                 <div class="header-info">
                     <div class="module-card-title">${file.name}</div>
                     <div class="module-card-subtitle" id="upload-progress-text">${getString('msg_please_wait')}</div>
                 </div>
-                <md-outlined-icon-button id="cancel-upload" class="liquid">
+                <md-outlined-icon-button id="cancel-upload">
                     <md-icon><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></md-icon>
                 </md-outlined-icon-button>
             </div>
@@ -354,10 +342,8 @@ async function uploadAndLoadModule() {
             const info = await getKpmInfo(tmpPath);
             if (info && info.name) {
                 const dialog = document.getElementById('load-dialog');
-                dialog.classList.add('liquid-glass');
                 dialog.querySelector('#load-module-msg').textContent = getString('msg_module_loaded', info.name);
                 const checkbox = dialog.querySelector('md-checkbox');
-                checkbox.classList.add('liquid-glass');
                 checkbox.checked = false;
 
                 dialog.querySelector('.cancel').onclick = () => {
@@ -397,7 +383,7 @@ async function uploadAndLoadModule() {
     });
 }
 
-export function initKPMPage() {
+function initKPMPage() {
     const searchBtn = document.getElementById('kpm-search-btn');
     const searchBar = document.getElementById('kpm-search-bar');
     const closeBtn = document.getElementById('close-kpm-search-btn');
@@ -406,37 +392,6 @@ export function initKPMPage() {
     const menu = document.getElementById('kpm-menu');
     const loadBtn = document.getElementById('load');
     const refreshBtn = document.getElementById('refresh-kpm-list-menu');
-
-    searchBar.classList.add('liquid-glass');
-    menu.classList.add('liquid-glass');
-    searchBtn.classList.add('liquid');
-    menuBtn.classList.add('liquid');
-    loadBtn.classList.add('liquid');
-
-    const menuItems = menu.querySelectorAll('md-menu-item');
-    menuItems.forEach(item => {
-        item.classList.add('liquid-glass');
-    });
-
-    const controlDialog = document.getElementById('control-dialog');
-    const unloadDialog = document.getElementById('unload-dialog');
-    const loadDialog = document.getElementById('load-dialog');
-    
-    [controlDialog, unloadDialog, loadDialog].forEach(dialog => {
-        if (dialog) {
-            dialog.classList.add('liquid-glass');
-            const checkboxes = dialog.querySelectorAll('md-checkbox');
-            checkboxes.forEach(checkbox => {
-                checkbox.classList.add('liquid-glass');
-            });
-            const buttons = dialog.querySelectorAll('md-filled-button, md-filled-tonal-button, md-outlined-button');
-            buttons.forEach(button => {
-                if (!button.classList.contains('cancel') && !button.classList.contains('confirm')) {
-                    button.classList.add('liquid');
-                }
-            });
-        }
-    });
 
     searchBtn.onclick = () => {
         searchBar.classList.add('show');
@@ -465,17 +420,11 @@ export function initKPMPage() {
         refreshKpmList();
     };
 
-    if (controlDialog) {
-        const controlTextField = controlDialog.querySelector('md-outlined-text-field');
-        if (controlTextField) {
-            controlTextField.addEventListener('input', () => {
-                const confirmBtn = controlDialog.querySelector('.confirm');
-                if (confirmBtn) {
-                    confirmBtn.disabled = !controlTextField.value;
-                }
-            });
-        }
-    }
+    const controlDialog = document.getElementById('control-dialog');
+    const controlTextField = controlDialog.querySelector('md-outlined-text-field');
+    controlTextField.addEventListener('input', () => {
+        controlDialog.querySelector('.confirm').disabled = !controlTextField.value;
+    });
 
     loadBtn.onclick = () => uploadAndLoadModule();
 
